@@ -1,18 +1,22 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class CardData : MonoBehaviour
+namespace FirstRound
 {
-    // Start is called before the first frame update
-    void Start()
+    /// <summary>
+    /// ScriptableObject that stores card information
+    /// </summary>
+    [CreateAssetMenu(fileName = "NewCardData", menuName = "First Round/New Card Data", order = 1)]
+    public class CardData : ScriptableObject
     {
+        [Header("Card Identity")]
+        public int id;  
         
-    }
+        [Header("Visual")]
+        public Sprite frontSprite;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        [Header("Optional Info")]
+        [TextArea(2, 4)]
+        public string description;  
     }
 }
+
