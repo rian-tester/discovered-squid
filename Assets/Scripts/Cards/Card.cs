@@ -27,6 +27,9 @@ namespace FirstRound
         private Button button;
 
         private int gridIndex;
+        
+        // Coroutine management
+        private Coroutine currentAnimation;
 
         // Events
         public event Action<Card> OnCardClicked;
@@ -50,6 +53,8 @@ namespace FirstRound
             this.backSprite = backSprite;
             this.gridIndex = index;
 
+            StopCurrentAnimation();
+
             // Start with back side visible
             SetState(CardState.FaceDown);
             cardImage.sprite = backSprite;
@@ -57,6 +62,7 @@ namespace FirstRound
             // Reset transform
             transform.localScale = Vector3.one;
             cardImage.color = Color.white;
+            gameObject.SetActive(true);
         }
         #endregion
 
@@ -83,6 +89,20 @@ namespace FirstRound
         }
         #endregion
 
+        #region Animation Management
+        /// <summary>
+        /// Stops any currently running animation coroutine
+        /// </summary>
+        private void StopCurrentAnimation()
+        {
+            if (currentAnimation != null)
+            {
+                StopCoroutine(currentAnimation);
+                currentAnimation = null;
+            }
+        }
+        #endregion
+
         #region Visual Updates
         /// <summary>
         /// Flip the card to show its face
@@ -96,7 +116,8 @@ namespace FirstRound
                 return;
             }
 
-            StartCoroutine(FlipCoroutine(true, onComplete));
+            StopCurrentAnimation();
+            currentAnimation = StartCoroutine(FlipCoroutine(true, onComplete));
         }
 
         /// <summary>
@@ -111,7 +132,8 @@ namespace FirstRound
                 return;
             }
 
-            StartCoroutine(FlipCoroutine(false, onComplete));
+            StopCurrentAnimation();
+            currentAnimation = StartCoroutine(FlipCoroutine(false, onComplete));
         }
 
         private IEnumerator FlipCoroutine(bool toFront, Action onComplete)
@@ -121,7 +143,7 @@ namespace FirstRound
             float elapsed = 0f;
             float halfDuration = flipDuration / 2f;
 
-            // First half : scale donw to 0 on X axis
+            // First half : scale down to 0 on X axis
             while (elapsed < halfDuration)
             {
                 elapsed += Time.deltaTime;
@@ -150,6 +172,7 @@ namespace FirstRound
             // Update state
             SetState(toFront ? CardState.FaceUp : CardState.FaceDown);
 
+            currentAnimation = null;
             onComplete?.Invoke();
         }
         
@@ -158,7 +181,8 @@ namespace FirstRound
         /// </summary>
         public void PlayMatchedAnimation(Action onComplete = null)
         {
-            StartCoroutine(MatchedCoroutine(onComplete));
+            StopCurrentAnimation();
+            currentAnimation = StartCoroutine(MatchedCoroutine(onComplete));
         }
 
         private IEnumerator MatchedCoroutine(Action onComplete)
@@ -184,6 +208,7 @@ namespace FirstRound
             SetState(CardState.Disappeared);
             gameObject.SetActive(false);
 
+            currentAnimation = null;
             onComplete?.Invoke();
         }
         
@@ -197,10 +222,17 @@ namespace FirstRound
         public CardData GetCardData() => cardData;
         #endregion
 
-        private void OnDestroy()
+        #region Cleanup
+        private void OnDisable()
         {
-            button.onClick.RemoveListener(HandleClick);
+            StopCurrentAnimation();
         }
 
+        private void OnDestroy()
+        {
+            StopCurrentAnimation();
+            button.onClick.RemoveListener(HandleClick);
+        }
+        #endregion
     }
 }
