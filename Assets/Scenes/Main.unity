@@ -358,7 +358,7 @@ MonoBehaviour:
   m_ChildAlignment: 1
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 200, y: 100}
+  m_CellSize: {x: 350, y: 100}
   m_Spacing: {x: 200, y: 0}
   m_Constraint: 1
   m_ConstraintCount: 3
@@ -374,7 +374,7 @@ GameObject:
   - component: {fileID: 140422196}
   - component: {fileID: 140422195}
   m_Layer: 5
-  m_Name: Time Label
+  m_Name: Timer Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -508,7 +508,7 @@ GameObject:
   - component: {fileID: 239792327}
   - component: {fileID: 239792326}
   m_Layer: 5
-  m_Name: Player Name Text
+  m_Name: Player ID Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -788,7 +788,7 @@ GameObject:
   - component: {fileID: 641096409}
   - component: {fileID: 641096408}
   m_Layer: 5
-  m_Name: Player Name Label
+  m_Name: Player ID Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1478,7 +1478,7 @@ GameObject:
   - component: {fileID: 999057613}
   - component: {fileID: 999057612}
   m_Layer: 5
-  m_Name: Time Text
+  m_Name: Timer Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1743,37 +1743,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1039100496}
-  - component: {fileID: 1039100495}
+  - component: {fileID: 1039100497}
   m_Layer: 0
-  m_Name: ScoreManagerTester
+  m_Name: UIManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1039100495
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1039100494}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea8231a8703ec8a4093e4aaa8c5afd8d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gridManager: {fileID: 1328210444}
-  cardManager: {fileID: 1974508634}
-  scoreManager: {fileID: 1949827961}
-  matchesText: {fileID: 1525061159}
-  turnsText: {fileID: 21043915}
-  scoreText: {fileID: 708518930}
-  comboText: {fileID: 1020072204}
-  playerIDText: {fileID: 239792326}
-  timerText: {fileID: 999057612}
-  efficiencyText: {fileID: 1737587385}
-  autoGenerateOnStart: 1
 --- !u!4 &1039100496
 Transform:
   m_ObjectHideFlags: 0
@@ -1789,6 +1766,27 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1039100497
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1039100494}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b4eb453416a0b54ba9151806aa02ebf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerIDText: {fileID: 239792326}
+  scoreText: {fileID: 708518930}
+  timerText: {fileID: 999057612}
+  efficiencyText: {fileID: 1737587385}
+  matchesText: {fileID: 1525061159}
+  turnsText: {fileID: 21043915}
+  comboText: {fileID: 1020072204}
+  gameOverText: {fileID: 0}
+  gameOverPanel: {fileID: 0}
 --- !u!1 &1110105638
 GameObject:
   m_ObjectHideFlags: 0
@@ -2157,7 +2155,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6bc4038abbe60024191fe4da8e21876e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rows: 4
+  rows: 2
   columns: 4
   cardSize: {x: 150, y: 150}
   spacing: {x: 10, y: 10}
@@ -2263,6 +2261,57 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1381069910}
   m_CullTransparentMesh: 1
+--- !u!1 &1437977113
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1437977115}
+  - component: {fileID: 1437977114}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1437977114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1437977113}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97b348810ee2cde4b80c795e9e4b5e6d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridManager: {fileID: 1328210444}
+  cardManager: {fileID: 1974508634}
+  scoreManager: {fileID: 1949827961}
+  uiManager: {fileID: 1039100497}
+  defaultRows: 2
+  defaultColumns: 2
+  autoStartOnAwake: 1
+--- !u!4 &1437977115
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1437977113}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1525061157
 GameObject:
   m_ObjectHideFlags: 0
@@ -3174,3 +3223,4 @@ SceneRoots:
   - {fileID: 1328210445}
   - {fileID: 1949827962}
   - {fileID: 1039100496}
+  - {fileID: 1437977115}
