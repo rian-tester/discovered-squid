@@ -7,7 +7,7 @@ namespace FirstRound
 {
     /// <summary>
     /// Manages card selection, matching logic, and game flow
-    /// Handles continuous card flipping without blocking input
+    /// Handles continuous card flipping without blocking input using queue system
     /// </summary>
     public class CardManager : MonoBehaviour
     {
@@ -17,11 +17,16 @@ namespace FirstRound
         
         // Card tracking
         private List<Card> allCards = new List<Card>();
-        private List<Card> flippedCards = new List<Card>();
+        private Queue<Card> cardQueue = new Queue<Card>();
+        private HashSet<Card> cardsInQueue = new HashSet<Card>();
         private HashSet<Card> matchedCards = new HashSet<Card>();
         
+        // Current processing pair
+        private Card currentFirstCard = null;
+        private Card currentSecondCard = null;
+        
         // State management
-        private bool isProcessingMatch = false;
+        private bool isProcessingPair = false;
         private int totalMatches = 0;
         
         // Events
@@ -80,8 +85,11 @@ namespace FirstRound
             }
             
             allCards.Clear();
-            flippedCards.Clear();
+            cardQueue.Clear();
+            cardsInQueue.Clear();
             matchedCards.Clear();
+            currentFirstCard = null;
+            currentSecondCard = null;
             totalMatches = 0;
         }
         
@@ -90,61 +98,86 @@ namespace FirstRound
         #region Card Selection Logic
         
         /// <summary>
-        /// Handles card click events
+        /// Handles card click events and adds to queue
         /// </summary>
         /// <param name="card"></param>
         private void HandleCardClicked(Card card)
         {
-            // Prevent clicking same card twice
-            if (flippedCards.Contains(card))
-                return;
-            
             // Prevent clicking matched cards
             if (matchedCards.Contains(card))
                 return;
             
-            // Flip the card
-            card.FlipToFront();
-            flippedCards.Add(card);
+            // Prevent clicking same card multiple times
+            if (cardsInQueue.Contains(card))
+                return;
             
-            // Check if we have 2 cards flipped
-            if (flippedCards.Count >= 2 && !isProcessingMatch)
+            // Prevent clicking cards in current processing pair
+            if (card == currentFirstCard || card == currentSecondCard)
+                return;
+            
+            // Add to queue
+            cardQueue.Enqueue(card);
+            cardsInQueue.Add(card);
+            
+            // Flip the card immediately for visual feedback
+            card.FlipToFront();
+            
+            // Start processing if not already running
+            if (!isProcessingPair)
             {
-                StartCoroutine(ProcessMatchCheck());
+                StartCoroutine(ProcessQueue());
             }
         }
         
         #endregion
         
-        #region Match Processing
+        #region Queue Processing
         
         /// <summary>
-        /// Checks if the two flipped cards match
+        /// Processes card pairs from the queue in order
         /// </summary>
-        private IEnumerator ProcessMatchCheck()
+        private IEnumerator ProcessQueue()
         {
-            isProcessingMatch = true;
-            
-            // Wait a brief moment to show both cards
-            yield return new WaitForSeconds(0.3f);
-            
-            Card firstCard = flippedCards[0];
-            Card secondCard = flippedCards[1];
-            
-            // Check if cards match by ID
-            if (firstCard.GetCardID() == secondCard.GetCardID())
+            while (cardQueue.Count >= 2)
             {
-                // Match found
-                HandleMatch(firstCard, secondCard);
-            }
-            else
-            {
-                // No match
-                HandleMismatch(firstCard, secondCard);
+                isProcessingPair = true;
+                
+                // Dequeue two cards
+                currentFirstCard = cardQueue.Dequeue();
+                currentSecondCard = cardQueue.Dequeue();
+                
+                // Remove from tracking set
+                cardsInQueue.Remove(currentFirstCard);
+                cardsInQueue.Remove(currentSecondCard);
+                
+                // Wait a brief moment to show both cards
+                yield return new WaitForSeconds(0.3f);
+                
+                // Check if cards match by ID
+                if (currentFirstCard.GetCardID() == currentSecondCard.GetCardID())
+                {
+                    // Match found
+                    HandleMatch(currentFirstCard, currentSecondCard);
+                }
+                else
+                {
+                    // No match
+                    HandleMismatch(currentFirstCard, currentSecondCard);
+                }
+                
+                // Wait before processing next pair
+                yield return new WaitForSeconds(0.2f);
             }
             
-            isProcessingMatch = false;
+            // Clear current pair references
+            currentFirstCard = null;
+            currentSecondCard = null;
+            isProcessingPair = false;
         }
+        
+        #endregion
+        
+        #region Match Processing
         
         /// <summary>
         /// Handles matched cards
@@ -156,10 +189,6 @@ namespace FirstRound
             // Add to matched set
             matchedCards.Add(card1);
             matchedCards.Add(card2);
-            
-            // Remove from flipped cards
-            flippedCards.Remove(card1);
-            flippedCards.Remove(card2);
             
             // Trigger event
             OnCardsMatched?.Invoke(card1, card2);
@@ -212,10 +241,6 @@ namespace FirstRound
         {
             yield return new WaitForSeconds(mismatchFlipBackDelay);
             
-            // Remove from flipped cards
-            flippedCards.Remove(card1);
-            flippedCards.Remove(card2);
-            
             // Flip back
             card1.FlipToBack();
             card2.FlipToBack();
@@ -232,9 +257,12 @@ namespace FirstRound
         {
             StopAllCoroutines();
             
-            flippedCards.Clear();
+            cardQueue.Clear();
+            cardsInQueue.Clear();
             matchedCards.Clear();
-            isProcessingMatch = false;
+            currentFirstCard = null;
+            currentSecondCard = null;
+            isProcessingPair = false;
             totalMatches = 0;
             
             // Reset all cards to face down
@@ -276,6 +304,8 @@ namespace FirstRound
         public int GetTotalCardCount() => allCards.Count;
         
         public bool IsGameComplete() => matchedCards.Count == allCards.Count && allCards.Count > 0;
+        
+        public int GetQueuedCardCount() => cardQueue.Count;
         
         #endregion
         
