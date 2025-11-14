@@ -18,7 +18,7 @@ namespace FirstRound
         [SerializeField] private CardManager cardManager;
         [SerializeField] private ScoreManager scoreManager;
         [SerializeField] private UIManager uiManager;
-        // TODO: Add AudioManager later
+        [SerializeField] private AudioManager audioManager;
         // TODO: Add SaveLoadManager later
         
         [Header("Game Settings")]
@@ -98,6 +98,10 @@ namespace FirstRound
                 Debug.LogError("UIManager is not assigned!");
                 valid = false;
             }
+            if (audioManager == null)
+            {
+                Debug.LogWarning("AudioManager is not assigned (optional)");
+            }
             
             return valid;
         }
@@ -113,8 +117,13 @@ namespace FirstRound
             // Initialize UIManager with managers
             uiManager.Initialize(scoreManager, cardManager);
             
-            // TODO: Initialize AudioManager later
-            // audioManager.Initialize();
+            // Initialize AudioManager
+            if (audioManager != null)
+            {
+                audioManager.Initialize();
+                cardManager.SetAudioManager(audioManager);
+            }
+            
             
             // TODO: Initialize SaveLoadManager later
             // saveLoadManager.Initialize();
@@ -170,8 +179,12 @@ namespace FirstRound
             // Start UI timer
             uiManager.StartTimer();
             
-            // TODO: Play game start sound
-            // audioManager.PlayGameStart();
+            // Play game start sound
+            if (audioManager != null)
+            {
+                audioManager.PlayCardFlip();
+            }
+            
             
             Debug.Log("Game started successfully!");
         }
@@ -232,8 +245,12 @@ namespace FirstRound
             Debug.Log($"Final Score: {scoreManager.GetCurrentScore()}");
             Debug.Log($"Efficiency: {scoreManager.GetEfficiency()}%");
             
-            // TODO: Play game over sound
-            // audioManager.PlayGameOver();
+            // Play game over sound
+            if (audioManager != null)
+            {
+                audioManager.PlayGameOver();
+            }
+            
             
             // TODO: Save high score
             // saveLoadManager.SaveHighScore(scoreManager.GetCurrentScore());
@@ -326,6 +343,8 @@ namespace FirstRound
         public ScoreManager GetScoreManager() => scoreManager;
         
         public UIManager GetUIManager() => uiManager;
+
+        public AudioManager GetAudioManager() => audioManager;
         
         // TODO: Add getters for AudioManager and SaveLoadManager later
         

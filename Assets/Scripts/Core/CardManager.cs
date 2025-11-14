@@ -33,6 +33,9 @@ namespace FirstRound
         public event Action<Card, Card> OnCardsMatched;
         public event Action<Card, Card> OnCardsMismatched;
         public event Action OnAllCardsMatched;
+
+        // Audio reference
+        private AudioManager audioManager;
         
         #region Initialization
         
@@ -118,6 +121,11 @@ namespace FirstRound
             // Add to queue
             cardQueue.Enqueue(card);
             cardsInQueue.Add(card);
+
+            if (audioManager != null)
+            {
+                audioManager.PlayCardFlip();
+            }
             
             // Flip the card immediately for visual feedback
             card.FlipToFront();
@@ -192,6 +200,11 @@ namespace FirstRound
             
             // Trigger event
             OnCardsMatched?.Invoke(card1, card2);
+
+            if (audioManager != null)
+            {
+                audioManager.PlayMatch();
+            }
             
             // Play match animations
             StartCoroutine(PlayMatchAnimations(card1, card2));
@@ -214,6 +227,11 @@ namespace FirstRound
         {
             // Trigger event
             OnCardsMismatched?.Invoke(card1, card2);
+
+            if (audioManager != null)
+            {
+                audioManager.PlayMismatch();
+            }
             
             // Flip cards back after delay
             StartCoroutine(FlipCardsBack(card1, card2));
@@ -306,6 +324,15 @@ namespace FirstRound
         public bool IsGameComplete() => matchedCards.Count == allCards.Count && allCards.Count > 0;
         
         public int GetQueuedCardCount() => cardQueue.Count;
+        
+        /// <summary>
+        /// Sets audio manager reference
+        /// </summary>
+        /// <param name="audio"></param>
+        public void SetAudioManager(AudioManager audio)
+        {
+            audioManager = audio;
+        }
         
         #endregion
         
