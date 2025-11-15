@@ -26,6 +26,7 @@ namespace FirstRound
         [Header("Buttons")]
         [SerializeField] private Button playButton;
         [SerializeField] private Button deleteSaveButton;
+        [SerializeField] private Button exitButton;
 
         [Header("Animated Cards")]
         [SerializeField] private Card card1;
@@ -203,6 +204,7 @@ namespace FirstRound
         {
             playButton.onClick.AddListener(OnPlayButtonClicked);
             deleteSaveButton.onClick.AddListener(OnDeleteSaveButtonClicked);
+            exitButton.onClick.AddListener(OnExitButtonClicked);
         }
 
         /// <summary>
@@ -235,6 +237,14 @@ namespace FirstRound
             UpdateAllTimeBestPanel();
             
             Debug.Log($"[MainMenuManager] Save data deleted for {selectedRows}x{selectedColumns} grid!");
+        }
+
+        /// <summary>
+        /// Exit the game
+        /// </summary>
+        private void OnExitButtonClicked()
+        {
+            Application.Quit();
         }
 
         #endregion
@@ -352,6 +362,8 @@ namespace FirstRound
             
             if (deleteSaveButton != null)
                 deleteSaveButton.onClick.RemoveListener(OnDeleteSaveButtonClicked);
+            if (exitButton != null)
+                exitButton.onClick.RemoveListener(OnExitButtonClicked);
         }
 
         #endregion
