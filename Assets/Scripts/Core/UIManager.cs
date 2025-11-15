@@ -220,7 +220,7 @@ namespace FirstRound
         {
             if (comboText != null)
             {
-                if (combo > 1)
+                if (combo >= 2)
                 {
                     comboText.text = GetComboText(combo);
                     comboText.color = GetComboColor(combo);
@@ -239,9 +239,21 @@ namespace FirstRound
         {
             if (efficiencyText != null && scoreManager != null)
             {
-                float efficiency = scoreManager.GetEfficiency();
-                efficiencyText.text = $"{efficiency:F0}%";
-                efficiencyText.color = GetEfficiencyColor(efficiency);
+                int turns = scoreManager.GetTotalTurns();
+                
+                if (turns == 0)
+                {
+                    // Before first turn
+                    efficiencyText.text = "--";
+                    efficiencyText.color = Color.white;
+                }
+                else
+                {
+                    // Normal display
+                    float efficiency = scoreManager.GetEfficiency();
+                    efficiencyText.text = $"{efficiency:F0}%";
+                    efficiencyText.color = GetEfficiencyColor(efficiency);
+                }
             }
         }
         
@@ -355,11 +367,7 @@ namespace FirstRound
             if (matchesText != null) matchesText.text = "0";
             if (turnsText != null) turnsText.text = "0";
             if (comboText != null) comboText.text = "";
-            if (efficiencyText != null)
-            {
-                efficiencyText.text = "0%";
-                efficiencyText.color = Color.white;
-            }
+            UpdateEfficiency();
             
             ResetTimer();
             HideGameOver();

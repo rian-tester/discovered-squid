@@ -2294,6 +2294,7 @@ MonoBehaviour:
   cardManager: {fileID: 1974508634}
   scoreManager: {fileID: 1949827961}
   uiManager: {fileID: 1039100497}
+  audioManager: {fileID: 1758760240}
   defaultRows: 2
   defaultColumns: 2
   autoStartOnAwake: 1

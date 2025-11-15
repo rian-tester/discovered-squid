@@ -124,6 +124,10 @@ namespace FirstRound
                 cardManager.SetAudioManager(audioManager);
             }
             
+            if (cardManager != null)
+            {
+                cardManager.OnAllCardsMatched += OnGameComplete;
+            }
             
             // TODO: Initialize SaveLoadManager later
             // saveLoadManager.Initialize();
@@ -270,6 +274,13 @@ namespace FirstRound
         }
         
         #endregion
+
+        #region Events Callback
+        private void OnGameComplete()
+        {
+            EndGame();
+        }
+        #endregion
         
         #region Input Handling
         
@@ -357,6 +368,11 @@ namespace FirstRound
             if (uiManager != null)
             {
                 uiManager.Cleanup();
+            }
+
+            if(cardManager != null)
+            {
+                cardManager.OnAllCardsMatched -= OnGameComplete;
             }
             
             if (Instance == this)
