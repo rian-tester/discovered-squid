@@ -9,6 +9,7 @@ namespace FirstRound
 {
     /// <summary>
     /// Manages the main menu UI, grid selection, and card flip animations
+    /// Stats update dynamically based on selected grid from dropdowns
     /// </summary>
     public class MainMenuManager : MonoBehaviour
     {
@@ -33,23 +34,23 @@ namespace FirstRound
         [SerializeField] private Card card4;
 
         [Header("Card Animation Settings")]
-        [SerializeField] private CardData[] demoCardData; 
+        [SerializeField] private CardData[] demoCardData;
         [SerializeField] private Sprite cardBackSprite;
-        [SerializeField] private float flipInterval = 1.5f; 
+        [SerializeField] private float flipInterval = 1.5f;
 
         [Header("Audio")]
         [SerializeField] private AudioSource audioSource;
         [SerializeField] private AudioClip flipSound;
 
         [Header("Scene Management")]
-        [SerializeField] private string gameSceneName = "Game"; 
+        [SerializeField] private int gameSceneIndex = 1;
 
         // Components
         private SaveLoadManager saveLoadManager;
         
-        // Selected grid size (will be passed to game scene)
-        private int selectedRows = 2;
-        private int selectedColumns = 2;
+        // Selected grid size
+        private int selectedRows = 4;
+        private int selectedColumns = 4;
 
         // State
         private bool isAnimating = false;
@@ -62,15 +63,20 @@ namespace FirstRound
             saveLoadManager = FindObjectOfType<SaveLoadManager>();
             if (saveLoadManager == null)
             {
+                Debug.Log("[MainMenuManager] Creating new SaveLoadManager");
                 GameObject saveManagerObj = new GameObject("SaveLoadManager");
                 saveLoadManager = saveManagerObj.AddComponent<SaveLoadManager>();
                 DontDestroyOnLoad(saveManagerObj);
+            }
+            else
+            {
+                Debug.Log("[MainMenuManager] Found existing SaveLoadManager");
             }
         }
 
         private void Start()
         {
-            // Initialize save system
+            // Initialize save system (will reload if returning from game)
             saveLoadManager.Initialize();
 
             // Setup dropdowns
@@ -100,19 +106,21 @@ namespace FirstRound
             rowsDropdown.ClearOptions();
             List<string> rowOptions = new List<string> { "2", "4" };
             rowsDropdown.AddOptions(rowOptions);
-            rowsDropdown.value = 0; 
+            rowsDropdown.value = 1; // Default: 4 rows
             rowsDropdown.RefreshShownValue();
 
             // Setup Columns Dropdown
             columnsDropdown.ClearOptions();
             List<string> columnOptions = new List<string> { "2", "4", "6", "8", "10" };
             columnsDropdown.AddOptions(columnOptions);
-            columnsDropdown.value = 0; 
+            columnsDropdown.value = 1; // Default: 4 columns
             columnsDropdown.RefreshShownValue();
 
-            // Add listeners
+            // Add listeners - THIS IS CRITICAL FOR DYNAMIC STATS UPDATE
             rowsDropdown.onValueChanged.AddListener(OnGridSelectionChanged);
             columnsDropdown.onValueChanged.AddListener(OnGridSelectionChanged);
+
+            Debug.Log("[MainMenuManager] Dropdown listeners attached");
 
             // Set initial values
             UpdateSelectedGridSize();
@@ -120,13 +128,20 @@ namespace FirstRound
 
         /// <summary>
         /// Called when dropdown selection changes
+        /// Updates stats panel to show data for newly selected grid
         /// </summary>
         private void OnGridSelectionChanged(int index)
         {
+            Debug.Log($"[MainMenuManager] Dropdown changed! Index: {index}");
+            
             UpdateSelectedGridSize();
+            
+            Debug.Log($"[MainMenuManager] New grid: {selectedRows}x{selectedColumns}");
             
             // Update stats panel to show stats for selected grid
             UpdateAllTimeBestPanel();
+            
+            Debug.Log($"[MainMenuManager] Stats panel updated");
         }
 
         /// <summary>
@@ -138,7 +153,7 @@ namespace FirstRound
             selectedColumns = int.Parse(columnsDropdown.options[columnsDropdown.value].text);
             
             int totalCards = selectedRows * selectedColumns;
-            Debug.Log($"Grid selected: {selectedRows}x{selectedColumns} = {totalCards} cards");
+            Debug.Log($"[MainMenuManager] Grid selected: {selectedRows}x{selectedColumns} = {totalCards} cards");
         }
 
         #endregion
@@ -146,12 +161,17 @@ namespace FirstRound
         #region UI Updates
 
         /// <summary>
-        /// Updates the All Time Best panel with saved data for selected grid
+        /// Updates the All Time Best panel with saved data for SELECTED grid
+        /// This is called both on start and when dropdown selection changes
         /// </summary>
         private void UpdateAllTimeBestPanel()
         {
+            Debug.Log($"[MainMenuManager] UpdateAllTimeBestPanel() for {selectedRows}x{selectedColumns}");
+            
             // Get game data for currently selected grid size
             GameData currentGridData = saveLoadManager.GetGameData(selectedRows, selectedColumns);
+
+            Debug.Log($"[MainMenuManager] GameData - HS: {currentGridData.highScore}, Combo: {currentGridData.bestCombo}, Eff: {currentGridData.highestEfficiency}");
 
             // Update UI
             playerIDText.text = $"Player: {SystemInfo.deviceName}";
@@ -169,8 +189,7 @@ namespace FirstRound
                 ? $"Best Efficiency: {currentGridData.highestEfficiency:F1}%" 
                 : "Best Efficiency: --";
 
-            // Optional: Show which grid we're displaying stats for
-            Debug.Log($"Displaying stats for {selectedRows}x{selectedColumns} grid");
+            Debug.Log($"[MainMenuManager] Stats updated - {highScoreText.text}");
         }
 
         #endregion
@@ -187,11 +206,11 @@ namespace FirstRound
         }
 
         /// <summary>
-        /// Handle Play button click 
+        /// Handle Play button click - Pass grid size to game scene
         /// </summary>
         private void OnPlayButtonClicked()
         {
-            Debug.Log($"Play button clicked - Starting game with {selectedRows}x{selectedColumns} grid");
+            Debug.Log($"[MainMenuManager] Play button clicked - Starting game with {selectedRows}x{selectedColumns} grid");
             
             // Store selected grid size in PlayerPrefs to pass to game scene
             PlayerPrefs.SetInt("SelectedRows", selectedRows);
@@ -199,7 +218,7 @@ namespace FirstRound
             PlayerPrefs.Save();
             
             // Load game scene
-            SceneManager.LoadScene(1);
+            SceneManager.LoadScene(gameSceneIndex);
         }
 
         /// <summary>
@@ -207,7 +226,7 @@ namespace FirstRound
         /// </summary>
         private void OnDeleteSaveButtonClicked()
         {
-            Debug.Log($"Delete Save button clicked for {selectedRows}x{selectedColumns} grid");
+            Debug.Log($"[MainMenuManager] Delete Save button clicked for {selectedRows}x{selectedColumns} grid");
             
             // Delete save data for currently selected grid
             saveLoadManager.DeleteGridData(selectedRows, selectedColumns);
@@ -215,7 +234,7 @@ namespace FirstRound
             // Refresh UI to show cleared stats
             UpdateAllTimeBestPanel();
             
-            Debug.Log($"Save data deleted for {selectedRows}x{selectedColumns} grid!");
+            Debug.Log($"[MainMenuManager] Save data deleted for {selectedRows}x{selectedColumns} grid!");
         }
 
         #endregion
@@ -230,26 +249,23 @@ namespace FirstRound
             // Ensure we have enough demo card data
             if (demoCardData == null || demoCardData.Length < 2)
             {
-                Debug.LogError("Need at least 2 CardData objects for demo cards!");
+                Debug.LogError("[MainMenuManager] Need at least 2 CardData objects for demo cards!");
                 return;
             }
 
             // Initialize cards with demo data
-            // Cards 1 & 4 will start face down (showing back)
-            // Cards 2 & 3 will start face up (showing front)
-            
             card1.Initialize(demoCardData[0], cardBackSprite, 0);
             card2.Initialize(demoCardData[1 % demoCardData.Length], cardBackSprite, 1);
             card3.Initialize(demoCardData[0], cardBackSprite, 2);
             card4.Initialize(demoCardData[1 % demoCardData.Length], cardBackSprite, 3);
 
-            // Set initial states - cards 2 & 3 start flipped to front
+            // Set initial states
             card1.SetState(CardState.FaceDown);
             card2.SetState(CardState.FaceUp);
             card3.SetState(CardState.FaceUp);
             card4.SetState(CardState.FaceDown);
 
-            // Manually set sprites to match initial state
+            // Setup initial flip
             StartCoroutine(InitialFlipSetup());
         }
 
@@ -258,9 +274,8 @@ namespace FirstRound
         /// </summary>
         private IEnumerator InitialFlipSetup()
         {
-            yield return null; // Wait one frame
+            yield return null;
             
-            // Flip cards 2 & 3 to front immediately
             card2.FlipToFront();
             card3.FlipToFront();
         }
@@ -271,51 +286,36 @@ namespace FirstRound
         /// </summary>
         private IEnumerator ContinuousCardFlipRoutine()
         {
-            // Wait a bit before starting animation
             yield return new WaitForSeconds(0.5f);
 
             while (true)
             {
                 isAnimating = true;
 
-                // === FLIP CYCLE 1: Flip cards 1 & 4 to front, cards 2 & 3 to back ===
-                
-                // Play sound for first pair
+                // Flip cards 1 & 4 to front, cards 2 & 3 to back
                 PlayFlipSound();
-                
                 card1.FlipToFront();
                 card4.FlipToFront();
                 
-                // Small delay between pairs for visual effect
                 yield return new WaitForSeconds(0.15f);
                 
-                // Play sound for second pair
                 PlayFlipSound();
-                
                 card2.FlipToBack();
                 card3.FlipToBack();
 
-                // Wait for interval
                 yield return new WaitForSeconds(flipInterval);
 
-                // === FLIP CYCLE 2: Flip cards 1 & 4 to back, cards 2 & 3 to front ===
-                
-                // Play sound for first pair
+                // Flip cards 1 & 4 to back, cards 2 & 3 to front
                 PlayFlipSound();
-                
                 card1.FlipToBack();
                 card4.FlipToBack();
                 
-                // Small delay between pairs
                 yield return new WaitForSeconds(0.15f);
                 
-                // Play sound for second pair
                 PlayFlipSound();
-                
                 card2.FlipToFront();
                 card3.FlipToFront();
 
-                // Wait for interval before repeating
                 yield return new WaitForSeconds(flipInterval);
 
                 isAnimating = false;

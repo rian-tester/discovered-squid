@@ -20,18 +20,20 @@ namespace FirstRound
         [SerializeField] private ScoreManager scoreManager;
         [SerializeField] private UIManager uiManager;
         [SerializeField] private AudioManager audioManager;
-        [SerializeField] private SaveLoadManager saveLoadManager;
+        private SaveLoadManager saveLoadManager;
         
         [Header("Game Settings")]
         [SerializeField] private int defaultRows = 2;
         [SerializeField] private int defaultColumns = 2;
         [SerializeField] private bool autoStartOnAwake = true;
+        [SerializeField] private int menuSceneIndex = 0;
         
         // Game state
         private GameState currentState = GameState.Idle;
         
+
         #region Singleton Setup
-        
+
         private void Awake()
         {
             // Singleton pattern
@@ -42,7 +44,6 @@ namespace FirstRound
             }
             
             Instance = this;
-            DontDestroyOnLoad(gameObject);
             
             Debug.Log("GameManager initialized as singleton");
         }
@@ -123,6 +124,7 @@ namespace FirstRound
             
             if (saveLoadManager == null)
             {
+                saveLoadManager = FindObjectOfType<SaveLoadManager>();
                 Debug.LogWarning("SaveLoadManager is not assigned (optional)");
             }
             
@@ -298,7 +300,7 @@ namespace FirstRound
         {
             currentState = GameState.Menu;
             
-            SceneManager.LoadScene(0);
+            SceneManager.LoadScene(menuSceneIndex);
             
             Debug.Log("Quit to menu");
         }
