@@ -19,7 +19,7 @@ namespace FirstRound
         [SerializeField] private ScoreManager scoreManager;
         [SerializeField] private UIManager uiManager;
         [SerializeField] private AudioManager audioManager;
-        // TODO: Add SaveLoadManager later
+        [SerializeField] private SaveLoadManager saveLoadManager;
         
         [Header("Game Settings")]
         [SerializeField] private int defaultRows = 4;
@@ -98,9 +98,15 @@ namespace FirstRound
                 Debug.LogError("UIManager is not assigned!");
                 valid = false;
             }
+            
             if (audioManager == null)
             {
                 Debug.LogWarning("AudioManager is not assigned (optional)");
+            }
+            
+            if (saveLoadManager == null)
+            {
+                Debug.LogWarning("SaveLoadManager is not assigned (optional)");
             }
             
             return valid;
@@ -114,8 +120,14 @@ namespace FirstRound
             // Initialize ScoreManager with CardManager
             scoreManager.Initialize(cardManager);
             
-            // Initialize UIManager with managers
-            uiManager.Initialize(scoreManager, cardManager);
+            // Initialize SaveLoadManager
+            if (saveLoadManager != null)
+            {
+                saveLoadManager.Initialize();
+            }
+            
+            // Initialize UIManager with all managers
+            uiManager.Initialize(scoreManager, cardManager, saveLoadManager);
             
             // Initialize AudioManager
             if (audioManager != null)
@@ -124,13 +136,11 @@ namespace FirstRound
                 cardManager.SetAudioManager(audioManager);
             }
             
+            // Subscribe to game complete event
             if (cardManager != null)
             {
                 cardManager.OnAllCardsMatched += OnGameComplete;
             }
-            
-            // TODO: Initialize SaveLoadManager later
-            // saveLoadManager.Initialize();
             
             Debug.Log("All managers initialized successfully");
         }
@@ -150,8 +160,6 @@ namespace FirstRound
         /// <summary>
         /// Starts a new game with custom grid size
         /// </summary>
-        /// <param name="rows"></param>
-        /// <param name="columns"></param>
         public void StartNewGame(int rows, int columns)
         {
             Debug.Log($"Starting new game: {rows}x{columns}");
@@ -189,7 +197,6 @@ namespace FirstRound
                 audioManager.PlayCardFlip();
             }
             
-            
             Debug.Log("Game started successfully!");
         }
         
@@ -214,9 +221,6 @@ namespace FirstRound
             uiManager.StopTimer();
             
             Debug.Log("Game paused");
-            
-            // TODO: Show pause menu
-            // TODO: Play pause sound
         }
         
         /// <summary>
@@ -232,9 +236,6 @@ namespace FirstRound
             uiManager.StartTimer();
             
             Debug.Log("Game resumed");
-            
-            // TODO: Hide pause menu
-            // TODO: Play resume sound
         }
         
         /// <summary>
@@ -246,8 +247,22 @@ namespace FirstRound
             uiManager.StopTimer();
             
             Debug.Log("=== GAME OVER ===");
-            Debug.Log($"Final Score: {scoreManager.GetCurrentScore()}");
-            Debug.Log($"Efficiency: {scoreManager.GetEfficiency()}%");
+            
+            // Save game results
+            if (saveLoadManager != null)
+            {
+                int rows = gridManager.GetRows();
+                int columns = gridManager.GetColumns();
+                int score = scoreManager.GetCurrentScore();
+                int combo = scoreManager.GetHighestCombo();
+                float efficiency = scoreManager.GetEfficiency();
+                int turns = scoreManager.GetTotalTurns();
+                int matches = scoreManager.GetTotalMatches();
+                float gameTime = uiManager.GetGameTime();
+                
+                saveLoadManager.SaveGameResults(rows, columns, score, combo, 
+                                                efficiency, turns, matches, gameTime);
+            }
             
             // Play game over sound
             if (audioManager != null)
@@ -255,9 +270,8 @@ namespace FirstRound
                 audioManager.PlayGameOver();
             }
             
-            
-            // TODO: Save high score
-            // saveLoadManager.SaveHighScore(scoreManager.GetCurrentScore());
+            Debug.Log($"Final Score: {scoreManager.GetCurrentScore()}");
+            Debug.Log($"Efficiency: {scoreManager.GetEfficiency()}%");
         }
         
         /// <summary>
@@ -274,12 +288,17 @@ namespace FirstRound
         }
         
         #endregion
-
+        
         #region Events Callback
+        
+        /// <summary>
+        /// Called when all cards are matched
+        /// </summary>
         private void OnGameComplete()
         {
             EndGame();
         }
+        
         #endregion
         
         #region Input Handling
@@ -354,10 +373,10 @@ namespace FirstRound
         public ScoreManager GetScoreManager() => scoreManager;
         
         public UIManager GetUIManager() => uiManager;
-
+        
         public AudioManager GetAudioManager() => audioManager;
         
-        // TODO: Add getters for AudioManager and SaveLoadManager later
+        public SaveLoadManager GetSaveLoadManager() => saveLoadManager;
         
         #endregion
         
@@ -369,8 +388,8 @@ namespace FirstRound
             {
                 uiManager.Cleanup();
             }
-
-            if(cardManager != null)
+            
+            if (cardManager != null)
             {
                 cardManager.OnAllCardsMatched -= OnGameComplete;
             }

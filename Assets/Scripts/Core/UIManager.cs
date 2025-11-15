@@ -21,13 +21,31 @@ namespace FirstRound
         [SerializeField] private TMP_Text turnsText;
         [SerializeField] private TMP_Text comboText;
         
-        [Header("Optional UI")]
-        [SerializeField] private TMP_Text gameOverText;
+        [Header("Game Over Panel - Detailed")]
         [SerializeField] private GameObject gameOverPanel;
+        [SerializeField] private TMP_Text gameOverTitle;
+        
+        // Current game stats
+        [SerializeField] private TMP_Text currentScoreText;
+        [SerializeField] private TMP_Text currentTimeText;
+        [SerializeField] private TMP_Text currentEfficiencyText;
+        [SerializeField] private TMP_Text currentComboText;
+        
+        // New records panel
+        [SerializeField] private GameObject newRecordsPanel;
+        [SerializeField] private TMP_Text newHighScoreText;
+        [SerializeField] private TMP_Text newBestComboText;
+        [SerializeField] private TMP_Text newBestEfficiencyText;
+        
+        // All-time best stats
+        [SerializeField] private TMP_Text allTimeHighScoreText;
+        [SerializeField] private TMP_Text allTimeBestComboText;
+        [SerializeField] private TMP_Text allTimeBestEfficiencyText;
         
         // Managers references
         private ScoreManager scoreManager;
         private CardManager cardManager;
+        private SaveLoadManager saveLoadManager;
         
         // Timer tracking
         private float gameTime = 0f;
@@ -41,12 +59,11 @@ namespace FirstRound
         /// <summary>
         /// Initializes UI with manager references
         /// </summary>
-        /// <param name="scoreManager"></param>
-        /// <param name="cardManager"></param>
-        public void Initialize(ScoreManager scoreManager, CardManager cardManager)
+        public void Initialize(ScoreManager scoreManager, CardManager cardManager, SaveLoadManager saveLoadManager)
         {
             this.scoreManager = scoreManager;
             this.cardManager = cardManager;
+            this.saveLoadManager = saveLoadManager;
             
             // Generate player ID
             playerID = GeneratePlayerID();
@@ -69,6 +86,7 @@ namespace FirstRound
             // Initialize UI
             UpdatePlayerID();
             ResetUI();
+            UpdateEfficiency();
             
             Debug.Log("UIManager initialized");
         }
@@ -168,6 +186,11 @@ namespace FirstRound
             }
         }
         
+        /// <summary>
+        /// Gets current game time
+        /// </summary>
+        public float GetGameTime() => gameTime;
+        
         #endregion
         
         #region Score UI Updates
@@ -175,7 +198,6 @@ namespace FirstRound
         /// <summary>
         /// Updates score display
         /// </summary>
-        /// <param name="score"></param>
         private void UpdateScore(int score)
         {
             if (scoreText != null)
@@ -187,7 +209,6 @@ namespace FirstRound
         /// <summary>
         /// Updates matches display
         /// </summary>
-        /// <param name="matches"></param>
         private void UpdateMatches(int matches)
         {
             if (matchesText != null)
@@ -201,7 +222,6 @@ namespace FirstRound
         /// <summary>
         /// Updates turns display
         /// </summary>
-        /// <param name="turns"></param>
         private void UpdateTurns(int turns)
         {
             if (turnsText != null)
@@ -215,7 +235,6 @@ namespace FirstRound
         /// <summary>
         /// Updates combo display with color coding
         /// </summary>
-        /// <param name="combo"></param>
         private void UpdateCombo(int combo)
         {
             if (comboText != null)
@@ -264,7 +283,6 @@ namespace FirstRound
         /// <summary>
         /// Gets combo text based on streak level
         /// </summary>
-        /// <param name="combo"></param>
         private string GetComboText(int combo)
         {
             if (combo >= 5) return $"COMBO x{combo}!!";
@@ -275,7 +293,6 @@ namespace FirstRound
         /// <summary>
         /// Gets combo color based on streak level
         /// </summary>
-        /// <param name="combo"></param>
         private Color GetComboColor(int combo)
         {
             if (combo >= 5) return new Color(1f, 0.3f, 0f); // Red-Orange
@@ -286,7 +303,6 @@ namespace FirstRound
         /// <summary>
         /// Gets efficiency color based on performance
         /// </summary>
-        /// <param name="efficiency"></param>
         private Color GetEfficiencyColor(float efficiency)
         {
             if (efficiency >= 90f) return new Color(0f, 1f, 0f); // Green
@@ -301,46 +317,78 @@ namespace FirstRound
         #region Game Over
         
         /// <summary>
-        /// Shows game over screen
+        /// Shows detailed game over screen with stats and records
         /// </summary>
         private void ShowGameOver()
         {
             StopTimer();
             
-            if (gameOverPanel != null)
+            if (gameOverPanel == null || scoreManager == null || saveLoadManager == null)
+                return;
+            
+            // Get current game stats
+            int currentScore = scoreManager.GetCurrentScore();
+            int currentCombo = scoreManager.GetHighestCombo();
+            float currentEfficiency = scoreManager.GetEfficiency();
+            
+            // Get grid size from GameManager
+            int rows = GameManager.Instance.GetGridManager().GetRows();
+            int columns = GameManager.Instance.GetGridManager().GetColumns();
+            
+            // Get saved game data
+            GameData gameData = saveLoadManager.GetGameData(rows, columns);
+            
+            // Check for new records
+            bool newHighScore = gameData.IsNewHighScore(currentScore);
+            bool newBestCombo = gameData.IsNewBestCombo(currentCombo);
+            bool newBestEfficiency = gameData.IsNewHighestEfficiency(currentEfficiency);
+            
+            // Update current game stats
+            if (currentScoreText != null)
+                currentScoreText.text = $"Score: {currentScore}";
+            
+            if (currentTimeText != null)
+                currentTimeText.text = $"Time: {gameTime:F1}s";
+            
+            if (currentEfficiencyText != null)
+                currentEfficiencyText.text = $"Efficiency: {currentEfficiency:F0}%";
+            
+            if (currentComboText != null)
+                currentComboText.text = $"Best Combo: x{currentCombo}";
+            
+            // Show/hide new records panel
+            if (newRecordsPanel != null)
             {
-                gameOverPanel.SetActive(true);
+                bool hasNewRecord = newHighScore || newBestCombo || newBestEfficiency;
+                newRecordsPanel.SetActive(hasNewRecord);
+                
+                if (hasNewRecord)
+                {
+                    if (newHighScoreText != null)
+                        newHighScoreText.gameObject.SetActive(newHighScore);
+                    
+                    if (newBestComboText != null)
+                        newBestComboText.gameObject.SetActive(newBestCombo);
+                    
+                    if (newBestEfficiencyText != null)
+                        newBestEfficiencyText.gameObject.SetActive(newBestEfficiency);
+                }
             }
             
-            if (gameOverText != null && scoreManager != null)
-            {
-                string performanceBadge = GetPerformanceBadge();
-                gameOverText.text = $"GAME COMPLETE!\n\n" +
-                                   $"Score: {scoreManager.GetCurrentScore()}\n" +
-                                   $"Time: {gameTime:F1}s\n" +
-                                   $"Efficiency: {scoreManager.GetEfficiency():F0}%\n" +
-                                   $"Best Combo: x{scoreManager.GetHighestCombo()}\n\n" +
-                                   $"{performanceBadge}";
-            }
+            // Update all-time best stats (show new values if records broken)
+            if (allTimeHighScoreText != null)
+                allTimeHighScoreText.text = $"High Score: {(newHighScore ? currentScore : gameData.highScore)}";
             
-            Debug.Log("=== GAME OVER ===");
-        }
-        
-        /// <summary>
-        /// Gets performance badge based on efficiency and combo
-        /// </summary>
-        private string GetPerformanceBadge()
-        {
-            if (scoreManager == null) return "";
+            if (allTimeBestComboText != null)
+                allTimeBestComboText.text = $"Best Combo: x{(newBestCombo ? currentCombo : gameData.bestCombo)}";
             
-            float efficiency = scoreManager.GetEfficiency();
-            int combo = scoreManager.GetHighestCombo();
+            if (allTimeBestEfficiencyText != null)
+                allTimeBestEfficiencyText.text = $"Best Efficiency: {(newBestEfficiency ? currentEfficiency : gameData.highestEfficiency):F0}%";
             
-            if (efficiency == 100f) return "PERFECT!";
-            if (efficiency >= 90f && combo >= 5) return "MASTER!";
-            if (efficiency >= 80f) return "EXPERT!";
-            if (efficiency >= 70f) return "SKILLED!";
-            return "GOOD TRY!";
+            // Show panel
+            gameOverPanel.SetActive(true);
+            
+            Debug.Log("=== GAME OVER - Stats Displayed ===");
         }
         
         /// <summary>
@@ -367,10 +415,10 @@ namespace FirstRound
             if (matchesText != null) matchesText.text = "0";
             if (turnsText != null) turnsText.text = "0";
             if (comboText != null) comboText.text = "";
-            UpdateEfficiency();
             
             ResetTimer();
             HideGameOver();
+            UpdateEfficiency();
         }
         
         #endregion
