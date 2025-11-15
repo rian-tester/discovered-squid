@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c0179a4b9d763034887650e00eca5266, type: 3}
-  m_Name: CardData_Bird
+  m_Name: CardData_Island
   m_EditorClassIdentifier: 
-  id: 1
-  frontSprite: {fileID: 21300000, guid: b92f88f84984898498f289132bbcd110, type: 3}
+  id: 23
+  frontSprite: {fileID: 21300000, guid: 2f4955b48396cbe4cbd97b091a6d4481, type: 3}
   description: 

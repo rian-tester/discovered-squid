@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c0179a4b9d763034887650e00eca5266, type: 3}
-  m_Name: CardData_Fish
+  m_Name: CardData_Bear
   m_EditorClassIdentifier: 
-  id: 3
-  frontSprite: {fileID: 21300000, guid: a84936bf7e3719f41b289fca589a46de, type: 3}
+  id: 1
+  frontSprite: {fileID: 21300000, guid: bf858e850eb8512468115de3849c2993, type: 3}
   description: 

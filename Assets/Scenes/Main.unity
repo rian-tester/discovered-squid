@@ -731,6 +731,7 @@ RectTransform:
   - {fileID: 1110105639}
   - {fileID: 1381069911}
   - {fileID: 119440237}
+  - {fileID: 904875379}
   m_Father: {fileID: 934661604}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1271,6 +1272,81 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 855975561}
+  m_CullTransparentMesh: 1
+--- !u!1 &904875378
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 904875379}
+  - component: {fileID: 904875381}
+  - component: {fileID: 904875380}
+  m_Layer: 5
+  m_Name: GameOverPanel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &904875379
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 904875378}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 277567141}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: -500, y: 650}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &904875380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 904875378}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &904875381
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 904875378}
   m_CullTransparentMesh: 1
 --- !u!1 &934661600
 GameObject:
@@ -2155,7 +2231,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6bc4038abbe60024191fe4da8e21876e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rows: 2
+  rows: 4
   columns: 4
   cardSize: {x: 150, y: 150}
   spacing: {x: 10, y: 10}
@@ -2171,6 +2247,18 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 962a98be9b12ddc4fb0db10eb68ebe50, type: 2}
   - {fileID: 11400000, guid: 55b2e1f4022423946ab16d4b652a45ab, type: 2}
   - {fileID: 11400000, guid: ad190aeac206c2446b502f5728a0fd36, type: 2}
+  - {fileID: 11400000, guid: 4d99d9227ee950a4d888b52d97819f3d, type: 2}
+  - {fileID: 11400000, guid: c851aeb798fbc494fa18f82da822647e, type: 2}
+  - {fileID: 11400000, guid: 7d1837c0f892f5f439e1b59704a9bf32, type: 2}
+  - {fileID: 11400000, guid: a2f253b2d36be2d4d9e9aed68cf1f8a5, type: 2}
+  - {fileID: 11400000, guid: 713b09d19da10b74ba3d6c66448beaab, type: 2}
+  - {fileID: 11400000, guid: 3e422b85b5e18124d81deeed6672eb9c, type: 2}
+  - {fileID: 11400000, guid: abf6529a159e2354bad40fa3d6b1b1cf, type: 2}
+  - {fileID: 11400000, guid: 084c2e8ac12d72b4cb951f73b0cf9331, type: 2}
+  - {fileID: 11400000, guid: 5d51ad14864382346a98fdb515555057, type: 2}
+  - {fileID: 11400000, guid: 48d2ddacda770fb4e9fa80a2a856ac90, type: 2}
+  - {fileID: 11400000, guid: 23d0f5c0b68142d4582d4e82435280c2, type: 2}
+  - {fileID: 11400000, guid: cb84f6c230054504095d6f2a5a07970d, type: 2}
 --- !u!4 &1328210445
 Transform:
   m_ObjectHideFlags: 0
@@ -2295,8 +2383,8 @@ MonoBehaviour:
   scoreManager: {fileID: 1949827961}
   uiManager: {fileID: 1039100497}
   audioManager: {fileID: 1758760240}
-  defaultRows: 2
-  defaultColumns: 2
+  defaultRows: 5
+  defaultColumns: 6
   autoStartOnAwake: 1
 --- !u!4 &1437977115
 Transform:
