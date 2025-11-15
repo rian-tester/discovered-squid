@@ -1,6 +1,7 @@
 using UnityEngine;
 using FirstRound;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 namespace FirstRound
 {
@@ -22,8 +23,8 @@ namespace FirstRound
         [SerializeField] private SaveLoadManager saveLoadManager;
         
         [Header("Game Settings")]
-        [SerializeField] private int defaultRows = 4;
-        [SerializeField] private int defaultColumns = 4;
+        [SerializeField] private int defaultRows = 2;
+        [SerializeField] private int defaultColumns = 2;
         [SerializeField] private bool autoStartOnAwake = true;
         
         // Game state
@@ -62,7 +63,23 @@ namespace FirstRound
             
             if (autoStartOnAwake)
             {
-                StartNewGame();
+                // Check if grid size was set from main menu
+                if (PlayerPrefs.HasKey("SelectedRows") && PlayerPrefs.HasKey("SelectedColumns"))
+                {
+                    int rows = PlayerPrefs.GetInt("SelectedRows");
+                    int columns = PlayerPrefs.GetInt("SelectedColumns");
+                    
+                    // Clear the PlayerPrefs so it doesn't auto-use next time
+                    PlayerPrefs.DeleteKey("SelectedRows");
+                    PlayerPrefs.DeleteKey("SelectedColumns");
+                    
+                    StartNewGame(rows, columns);
+                }
+                else
+                {
+                    // Use default if not set
+                    StartNewGame();
+                }
             }
             
             Debug.Log("=== GameManager Ready ===");
@@ -281,8 +298,7 @@ namespace FirstRound
         {
             currentState = GameState.Menu;
             
-            // TODO: Load menu scene
-            // SceneManager.LoadScene("MainMenu");
+            SceneManager.LoadScene(0);
             
             Debug.Log("Quit to menu");
         }
